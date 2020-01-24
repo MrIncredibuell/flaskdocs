@@ -16,6 +16,7 @@ class API:
 
     def add_route(
             self,
+            func,
             path,
             name=None,
             methods=None,
@@ -24,13 +25,45 @@ class API:
             response_schema: Schema=None,
     ):
 
-        self.routes[name] = Route(
+        route = Route(
+            func=func,
             name=name,
             path=path,
-            methods=methods or [],
+            methods=methods,
+            query_parameter_schema=query_parameter_schema,
+            body_schema=body_schema,
+            response_schema=response_schema,
         )
 
-        return
+        self.routes[name] = route
+
+        self.app.add_url_rule(
+            path,
+            name,
+            view_func=route.handler,
+            methods=methods,
+        )
+
+    def route(
+        self,
+        path,
+        name=None,
+        methods=None,
+        query_parameter_schema: Schema=None,
+        body_schema: Schema=None,
+        response_schema: Schema = None,
+    ):
+        def wrapper(func):
+            self.add_route(
+                func=func,
+                name=name,
+                path=path,
+                methods=methods,
+                query_parameter_schema=query_parameter_schema,
+                body_schema=body_schema,
+                response_schema=response_schema,
+            )
+        return wrapper
 
     def describe(self):
         return ""
@@ -40,7 +73,7 @@ class Route:
         self,
         name: str,
         path: str,
-        # method: str,
+        methods: str,
         func: Callable,
         query_parameter_schema: Schema=None,
         body_schema: Schema=None,
@@ -48,7 +81,7 @@ class Route:
     ):
         self.name = name
         self.path = path
-        self.methods = []
+        self.methods = methods
         self.func = func
         self.query_parameter_schema = query_parameter_schema
         self.body_schema = body_schema
@@ -69,7 +102,6 @@ class Route:
             return response
 
         try:
-
             if self.body_schema:
                 if request.is_json:
                     params.update(

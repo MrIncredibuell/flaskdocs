@@ -12,21 +12,14 @@ api = API(
 
 simple_page = Blueprint('simple_page', __name__,
                         template_folder='templates')
-
-# @simple_page.route('/', defaults={'page': 'index'})
+@api.route(
+    name="moo",
+    path="/moo",
+    methods=["GET", "POST"],
+    body_schema=Schema({"animal": str}),
+    response_schema=Schema({})
+)
 def moo(animal):
     return jsonify({animal: "moo"})
 
-@simple_page.route("/moo", methods=["POST"])
-def handler(*args, **kwargs):
-    return Route(
-        name="moo",
-        path="/moo",
-        func=moo,
-        body_schema=Schema({"animal": str}),
-        response_schema=Schema({})
-    ).handler(*args, **kwargs)
-
-
-app.register_blueprint(simple_page)
 
