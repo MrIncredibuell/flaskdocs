@@ -19,7 +19,7 @@ simple_page = Blueprint('simple_page', __name__,
     body_schema=Schema({"animal": str}),
     response_schema=Schema({})
 )
-def moo(animal):
+def moo(animal="cow"):
     return jsonify({animal: "moo"})
 
 

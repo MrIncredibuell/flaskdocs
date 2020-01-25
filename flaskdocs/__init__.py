@@ -88,6 +88,12 @@ class Route:
         self.response_schema = response_schema
 
     def handler(self):
+        if request.accept_mimetypes.best_match([
+            "application/json",
+            "application/schema+json",
+        ]) == "application/schema+json":
+            return {}
+
         params = {}
 
         try:
@@ -102,7 +108,7 @@ class Route:
             return response
 
         try:
-            if self.body_schema:
+            if self.body_schema and request.content_length:
                 if request.is_json:
                     params.update(
                         self.body_schema.validate(
