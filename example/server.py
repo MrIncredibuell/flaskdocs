@@ -18,11 +18,23 @@ blueprint = Blueprint('example', __name__)
     path="/moo",
     methods=["GET", "POST"],
     body_schema=Schema({"animal": str}),
-    response_schema=Schema({}),
+    response_schema=Schema({"moo": str}),
     blueprint=blueprint,
 )
 def moo(animal="cow"):
-    return jsonify({animal: "moo"})
+    return jsonify({"moo": animal})
+
+@api.route(
+    name="hello",
+    path="/hello",
+    methods=["POST"],
+    body_schema=Schema({"name": str}),
+    response_schema=Schema({"greeting": str}),
+    blueprint=blueprint,
+)
+def hello(name="sir"):
+    return jsonify({"greeting": f"hello {name}"})
+
 
 app.register_blueprint(blueprint)
 
