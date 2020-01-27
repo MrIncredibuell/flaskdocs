@@ -10,16 +10,21 @@ api = API(
     app=app,
 )
 
-simple_page = Blueprint('simple_page', __name__,
-                        template_folder='templates')
+blueprint = Blueprint('example', __name__)
+
+
 @api.route(
     name="moo",
     path="/moo",
     methods=["GET", "POST"],
     body_schema=Schema({"animal": str}),
-    response_schema=Schema({})
+    response_schema=Schema({}),
+    blueprint=blueprint,
 )
 def moo(animal="cow"):
     return jsonify({animal: "moo"})
 
+app.register_blueprint(blueprint)
 
+
+api.output_ts("example/ts")

@@ -1,6 +1,7 @@
+from os import makedirs, path
 from typing import List, Callable
-from .schema import Schema, SchemaError
-from flask import Flask, request, jsonify
+from .schema import Schema, SchemaError, to_typescript
+from flask import Flask, Blueprint, request, jsonify
 import warnings
 
 class API:
@@ -22,7 +23,8 @@ class API:
             methods=None,
             query_parameter_schema: Schema=None,
             body_schema: Schema=None,
-            response_schema: Schema=None,
+            response_schema: Schema = None,
+            blueprint=None,
     ):
 
         route = Route(
@@ -35,14 +37,19 @@ class API:
             response_schema=response_schema,
         )
 
-        self.routes[name] = route
+        app = self.app
+        if blueprint:
+            app = blueprint
+            # name = f"{blueprint.name}.{name}"
 
-        self.app.add_url_rule(
+        app.add_url_rule(
             path,
             name,
             view_func=route.handler,
             methods=methods,
         )
+
+        self.routes[name] = route
 
     def route(
         self,
@@ -52,6 +59,7 @@ class API:
         query_parameter_schema: Schema=None,
         body_schema: Schema=None,
         response_schema: Schema = None,
+        blueprint: Blueprint = None,
     ):
         def wrapper(func):
             self.add_route(
@@ -62,11 +70,23 @@ class API:
                 query_parameter_schema=query_parameter_schema,
                 body_schema=body_schema,
                 response_schema=response_schema,
+                blueprint=blueprint,
             )
         return wrapper
 
     def describe(self):
-        return ""
+        return {
+            name: route.describe()
+            for name, route in self.routes.items()
+        }
+
+    def output_ts(self, directory):
+        makedirs(directory, exist_ok=True)
+        for name, route in self.routes.items():
+            f = open(path.join(directory, f"{name}.ts"), "w+")
+            f.write(route.describe_ts())
+            f.close()
+        
 
 class Route:
     def __init__(
@@ -130,4 +150,30 @@ class Route:
                 warnings.warn(f"Got error when validating the response: {err}")
                 
         return response
+
+    def describe_ts(self):
+        output = ""
+        if self.query_parameter_schema:
+            output += to_typescript(
+                f"{self.name}_query_schema",
+                self.query_parameter_schema,
+            ) + "\n"
+        
+        if self.body_schema:
+            output += to_typescript(
+                f"{self.name}_body_schema",
+                self.body_schema,
+            ) + "\n"
+        
+        if self.response_schema:
+            output += to_typescript(
+                f"{self.name}_response_schema",
+                self.response_schema,
+            ) + "\n"
+
+        return output
+
+
+    def describe(self):
+        return self.describe_ts()
 
