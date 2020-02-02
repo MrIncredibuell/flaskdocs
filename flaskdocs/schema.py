@@ -1,5 +1,18 @@
+import schema
 from schema import *
 from itertools import chain
+
+class Schema(schema.Schema):
+    def to_typescript(self, name: str = None, description: str = None,):
+        return to_typescript(
+            name=name or self.name,
+            python_schema=self,
+            description=description,
+        )
+
+    def to_openapi(self):
+        return {}
+
 
 INDENT_WIDTH = 4
 

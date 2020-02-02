@@ -6,19 +6,20 @@ from flaskdocs import API, Route, Schema
 app = Flask(__name__)
 
 api = API(
-    name="example",
+    title="example",
+    version="0.0.1",
+    description="Here's an example API",
     app=app,
 )
 
 blueprint = Blueprint('example', __name__)
-
 
 @api.route(
     name="moo",
     path="/moo",
     methods=["GET", "POST"],
     body_schema=Schema({"animal": str}),
-    response_schema=Schema({"moo": str}),
+    response_schema={200: Schema({"moo": str})},
     blueprint=blueprint,
 )
 def moo(animal="cow"):
@@ -29,14 +30,13 @@ def moo(animal="cow"):
     path="/hello",
     methods=["POST"],
     body_schema=Schema({"name": str}),
-    response_schema=Schema({"greeting": str}),
+    response_schema={200: Schema({"greeting": str})},
     blueprint=blueprint,
 )
 def hello(name="sir"):
     return jsonify({"greeting": f"hello {name}"})
 
-
 app.register_blueprint(blueprint)
 
-
 api.output_ts("example/ts")
+api.output_openapi("example/openapi-spec.json")

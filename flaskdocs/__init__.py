@@ -1,19 +1,23 @@
 from os import makedirs, path
-from typing import List, Callable
+from typing import Dict, List, Callable
 from .schema import Schema, SchemaError, to_typescript
 from flask import Flask, Blueprint, request, jsonify
 import warnings
+import json
 
 class API:
     def __init__(
             self,
-            name: str,
+            title: str,
+            version: str,
             app: Flask,
             description: str = None,
     ):
         self.app = app
-        self.name = name
+        self.title = title
         self.routes = {}
+        self.description = description
+        self.version = version
 
     def add_route(
             self,
@@ -58,7 +62,7 @@ class API:
         methods=None,
         query_parameter_schema: Schema=None,
         body_schema: Schema=None,
-        response_schema: Schema = None,
+        response_schema: Dict[int, Schema] = None,
         blueprint: Blueprint = None,
     ):
         def wrapper(func):
@@ -86,7 +90,28 @@ class API:
             f = open(path.join(directory, f"{name}.ts"), "w+")
             f.write(route.describe_ts())
             f.close()
-        
+
+    def output_openapi(self, path, indent=1):
+        out = {
+            "info": {
+                "title": self.title,
+                "description": self.description,
+                "version": self.version,
+            },
+            "openapi": "3.0.0.",
+            "paths": {},
+            # "security": [],
+            # "servers": {},
+        }
+
+        for name, route in self.routes.items():
+            out["paths"][route.path] = route.to_openapi()
+
+        f = open(path, "w+")
+        f.write(json.dumps(out, indent=indent, sort_keys=True,))
+        f.close()
+
+
 
 class Route:
     def __init__(
@@ -95,14 +120,16 @@ class Route:
         path: str,
         methods: str,
         func: Callable,
+        response_schema: Schema,
+        description: str = None,
         query_parameter_schema: Schema=None,
         body_schema: Schema=None,
-        response_schema: Schema=None,
     ):
         self.name = name
         self.path = path
         self.methods = methods
         self.func = func
+        self.description = description
         self.query_parameter_schema = query_parameter_schema
         self.body_schema = body_schema
         self.response_schema = response_schema
@@ -143,9 +170,9 @@ class Route:
                     
 
         response = self.func(**params)
-        if response.is_json and self.response_schema:
+        if response.is_json and response.status in self.response_schema:
             try:
-                self.response_schema.validate(response.json)
+                self.response_schema[response.status].validate(response.json)
             except Exception as err:
                 warnings.warn(f"Got error when validating the response: {err}")
                 
@@ -165,15 +192,36 @@ class Route:
                 self.body_schema,
             ) + "\n"
         
-        if self.response_schema:
+        for status, response_schema in (self.response_schema or {}).items():
             output += to_typescript(
-                f"{self.name}_response_schema",
-                self.response_schema,
+                f"{self.name}_{status}_response_schema",
+                response_schema,
             ) + "\n"
 
         return output
 
+    def to_openapi(self):
+        route_data = {
+            method.lower(): {
+                "operationId": f"{method}-{self.name}",
+                "description": self.description,
+                "requestBody": {},
+                "responses": {
+                    status_code: {
+                        "content": {
+                            "application/json": {
+                                "schema": response_schema.json_schema(
+                                    schema_id=f"{method}-{self.name}-{status_code}",
+                                )
+                            },
+                        },
+                    } for (status_code, response_schema) in self.response_schema.items()
+                },
+            } for method in self.methods
+        }
+
+        return route_data
+
 
     def describe(self):
         return self.describe_ts()
-
