@@ -35,7 +35,7 @@ class API:
             func=func,
             name=name,
             path=path,
-            methods=methods,
+            methods=methods[:], # make a copy because we might update methods
             query_parameter_schema=query_parameter_schema,
             body_schema=body_schema,
             response_schema=response_schema,
@@ -45,6 +45,9 @@ class API:
         if blueprint:
             app = blueprint
             # name = f"{blueprint.name}.{name}"
+
+        if "GET" not in [m.upper() for m in methods]:
+            methods.append("GET")
 
         app.add_url_rule(
             path,
@@ -139,7 +142,10 @@ class Route:
             "application/json",
             "application/schema+json",
         ]) == "application/schema+json":
-            return {}
+            return jsonify(self.to_openapi())
+
+        if request.method == "GET" and "GET" not in self.methods:
+            return jsonify(self.to_openapi())
 
         params = {}
 

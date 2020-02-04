@@ -35,34 +35,6 @@
    }
   },
   "/moo": {
-   "get": {
-    "description": null,
-    "operationId": "GET-moo",
-    "requestBody": {},
-    "responses": {
-     "200": {
-      "content": {
-       "application/json": {
-        "schema": {
-         "$id": "GET-moo-200",
-         "$schema": "http://json-schema.org/draft-07/schema#",
-         "additionalProperties": false,
-         "properties": {
-          "moo": {
-           "description": "The animal which was passed in",
-           "type": "string"
-          }
-         },
-         "required": [
-          "moo"
-         ],
-         "type": "object"
-        }
-       }
-      }
-     }
-    }
-   },
    "post": {
     "description": null,
     "operationId": "POST-moo",

@@ -18,7 +18,7 @@ blueprint = Blueprint('example', __name__)
 @api.route(
     name="moo",
     path="/moo",
-    methods=["GET", "POST"],
+    methods=["POST"],
     body_schema=Schema({
         Literal("animal", description="An animal, for some reason"): str,
     }),
