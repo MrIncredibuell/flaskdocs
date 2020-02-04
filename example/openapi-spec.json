@@ -21,12 +21,11 @@
          "additionalProperties": false,
          "properties": {
           "greeting": {
+           "default": "sir",
            "type": "string"
           }
          },
-         "required": [
-          "greeting"
-         ],
+         "required": [],
          "type": "object"
         }
        }
@@ -50,6 +49,7 @@
          "additionalProperties": false,
          "properties": {
           "moo": {
+           "description": "The animal which was passed in",
            "type": "string"
           }
          },
@@ -77,6 +77,7 @@
          "additionalProperties": false,
          "properties": {
           "moo": {
+           "description": "The animal which was passed in",
            "type": "string"
           }
          },

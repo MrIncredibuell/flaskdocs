@@ -3,6 +3,6 @@ interface hello_body_schema {
 }
 
 interface hello_200_response_schema {
-    greeting: string;
+    greeting?: string;
 }
 

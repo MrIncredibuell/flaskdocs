@@ -1,7 +1,8 @@
 from flask import Blueprint, render_template, abort, Flask, jsonify, request
 from jinja2 import TemplateNotFound
 
-from flaskdocs import API, Route, Schema
+from flaskdocs import API, Route
+from flaskdocs.schema import Schema, Optional, Literal
 
 app = Flask(__name__)
 
@@ -18,8 +19,12 @@ blueprint = Blueprint('example', __name__)
     name="moo",
     path="/moo",
     methods=["GET", "POST"],
-    body_schema=Schema({"animal": str}),
-    response_schema={200: Schema({"moo": str})},
+    body_schema=Schema({
+        Literal("animal", description="An animal, for some reason"): str,
+    }),
+    response_schema={200: Schema({
+        Literal("moo", description="The animal which was passed in"): str
+    })},
     blueprint=blueprint,
 )
 def moo(animal="cow"):
@@ -29,8 +34,16 @@ def moo(animal="cow"):
     name="hello",
     path="/hello",
     methods=["POST"],
-    body_schema=Schema({"name": str}),
-    response_schema={200: Schema({"greeting": str})},
+    body_schema=Schema({
+        Literal("name", description="The name of the person to greet"): str
+    }),
+    response_schema={200: Schema({
+        Optional(
+            "greeting",
+            description="A personalized greeting for the person",
+            default="sir",
+        ): str,
+    })},
     blueprint=blueprint,
 )
 def hello(name="sir"):
