@@ -1,0 +1,95 @@
+{
+ "info": {
+  "description": "Here's an example API",
+  "title": "example",
+  "version": "0.0.1"
+ },
+ "openapi": "3.0.0.",
+ "paths": {
+  "/hello": {
+   "post": {
+    "description": null,
+    "operationId": "POST-hello",
+    "requestBody": {},
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$id": "POST-hello-200",
+         "$schema": "http://json-schema.org/draft-07/schema#",
+         "additionalProperties": false,
+         "properties": {
+          "greeting": {
+           "type": "string"
+          }
+         },
+         "required": [
+          "greeting"
+         ],
+         "type": "object"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/moo": {
+   "get": {
+    "description": null,
+    "operationId": "GET-moo",
+    "requestBody": {},
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$id": "GET-moo-200",
+         "$schema": "http://json-schema.org/draft-07/schema#",
+         "additionalProperties": false,
+         "properties": {
+          "moo": {
+           "type": "string"
+          }
+         },
+         "required": [
+          "moo"
+         ],
+         "type": "object"
+        }
+       }
+      }
+     }
+    }
+   },
+   "post": {
+    "description": null,
+    "operationId": "POST-moo",
+    "requestBody": {},
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$id": "POST-moo-200",
+         "$schema": "http://json-schema.org/draft-07/schema#",
+         "additionalProperties": false,
+         "properties": {
+          "moo": {
+           "type": "string"
+          }
+         },
+         "required": [
+          "moo"
+         ],
+         "type": "object"
+        }
+       }
+      }
+     }
+    }
+   }
+  }
+ }
+}
