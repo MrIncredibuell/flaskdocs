@@ -212,42 +212,15 @@ class Route:
                 "operationId": f"{method}-{self.name}",
                 "description": self.description,
                 "requestBody": {
-                    "content": {
-                        "application/json": {
-                            "schema": self.body_schema.json_schema(schema_id=None)
-                        }
-                    }
+                    "content": self.body_schema.to_openapi()
                 } if self.body_schema else None,
                 "responses": {
                     status_code: {
-                        "content": {
-                            "application/json": {
-                                "schema": response_schema.json_schema(
-                                    schema_id=None
-                                )
-                            },
-                        },
+                        "content": response_schema.to_openapi()
                     } for (status_code, response_schema) in self.response_schema.items()
                 },
             } for method in self.methods
         }
-
-        # delete ids because it breaks stuff
-        for method in route_data.values():
-            try:
-                s = method["requestBody"]["content"]["application/json"]["schema"]
-                del s["$id"]
-                del s["$schema"]
-            except KeyError:
-                pass
-
-            for response in method["responses"].values():
-                try:
-                    s = response["content"]["application/json"]["schema"]
-                    del s["$id"]
-                    del s["$schema"]
-                except KeyError:
-                    pass
 
         return route_data
 

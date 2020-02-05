@@ -10,8 +10,20 @@ class Schema(schema.Schema):
             description=description,
         )
 
+class JsonSchema(Schema):
     def to_openapi(self):
-        return {}
+        s = self.json_schema(
+            schema_id=None
+        )
+
+        del s["$id"]
+        del s["$schema"]
+    
+        return {
+            "application/json": {
+                "schema": s
+            },
+        }
 
 
 INDENT_WIDTH = 4
