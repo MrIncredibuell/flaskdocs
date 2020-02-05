@@ -10,14 +10,30 @@
    "post": {
     "description": null,
     "operationId": "POST-hello",
-    "requestBody": {},
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "additionalProperties": false,
+        "properties": {
+         "name": {
+          "description": "The name of the person to greet",
+          "type": "string"
+         }
+        },
+        "required": [
+         "name"
+        ],
+        "type": "object"
+       }
+      }
+     }
+    },
     "responses": {
      "200": {
       "content": {
        "application/json": {
         "schema": {
-         "$id": "POST-hello-200",
-         "$schema": "http://json-schema.org/draft-07/schema#",
          "additionalProperties": false,
          "properties": {
           "greeting": {
@@ -38,14 +54,30 @@
    "post": {
     "description": null,
     "operationId": "POST-moo",
-    "requestBody": {},
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "additionalProperties": false,
+        "properties": {
+         "animal": {
+          "description": "An animal, for some reason",
+          "type": "string"
+         }
+        },
+        "required": [
+         "animal"
+        ],
+        "type": "object"
+       }
+      }
+     }
+    },
     "responses": {
      "200": {
       "content": {
        "application/json": {
         "schema": {
-         "$id": "POST-moo-200",
-         "$schema": "http://json-schema.org/draft-07/schema#",
          "additionalProperties": false,
          "properties": {
           "moo": {

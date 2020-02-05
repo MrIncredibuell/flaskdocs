@@ -211,13 +211,19 @@ class Route:
             method.lower(): {
                 "operationId": f"{method}-{self.name}",
                 "description": self.description,
-                "requestBody": {},
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": self.body_schema.json_schema(schema_id=None)
+                        }
+                    }
+                } if self.body_schema else None,
                 "responses": {
                     status_code: {
                         "content": {
                             "application/json": {
                                 "schema": response_schema.json_schema(
-                                    schema_id=f"{method}-{self.name}-{status_code}",
+                                    schema_id=None
                                 )
                             },
                         },
@@ -225,6 +231,23 @@ class Route:
                 },
             } for method in self.methods
         }
+
+        # delete ids because it breaks stuff
+        for method in route_data.values():
+            try:
+                s = method["requestBody"]["content"]["application/json"]["schema"]
+                del s["$id"]
+                del s["$schema"]
+            except KeyError:
+                pass
+
+            for response in method["responses"].values():
+                try:
+                    s = response["content"]["application/json"]["schema"]
+                    del s["$id"]
+                    del s["$schema"]
+                except KeyError:
+                    pass
 
         return route_data
 
