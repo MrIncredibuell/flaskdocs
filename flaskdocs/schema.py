@@ -10,6 +10,9 @@ class Schema(schema.Schema):
             description=description,
         )
 
+    def to_openapi(self):
+        raise NotImplementedError
+
 class JsonSchema(Schema):
     def to_openapi(self):
         s = self.json_schema(
@@ -24,6 +27,55 @@ class JsonSchema(Schema):
                 "schema": s
             },
         }
+
+
+def _get_type_name(obj):
+    """Return the JSON schema name for a value of a schema object"""
+    
+    # handle recursive calls where obj is already a type (like from Use)
+    if type(obj) == type:
+        python_type = obj
+    else:
+        python_type = type(obj)
+
+
+    if python_type == str:
+        return "string"
+    elif python_type == int:
+        return "integer"
+    elif python_type == float:
+        return "number"
+    elif python_type == bool:
+        return "boolean"
+    elif python_type == list:
+        raise NotImplementedError("Not ready for non-primitive query params")
+        return "array"
+    elif python_type == dict:
+        raise NotImplementedError("Not ready for non-primitive query params")
+        return "object"
+    elif python_type == Use:
+        try:
+            return _get_type_name(obj._callable)
+        except Exception as e:
+            pass
+    return "string"
+
+
+class QueryParametersSchema(Schema):
+    def to_openapi(self):
+        params = []
+        for name, value in self._schema.items():
+            params.append({
+                "name": str(name),
+                "in": "query",
+                "required": not isinstance(name, Optional),
+                "schema": {
+                    "type": _get_type_name(value)
+                }
+            })
+        return params
+
+    
 
 
 INDENT_WIDTH = 4
@@ -70,7 +122,8 @@ def _to_interface(python_schema: Schema, indent=0):
     #indent the nested key-values
     temp_indent = indent + INDENT_WIDTH
 
-    for k, v in sorted(python_schema._schema.items()):
+    # TODO: Think about making this order strict
+    for k, v in python_schema._schema.items():
         optional = type(k) == Optional
         if optional:
             k = k.schema # extract the key

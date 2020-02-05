@@ -2,7 +2,7 @@ from flask import Blueprint, render_template, abort, Flask, jsonify, request
 from jinja2 import TemplateNotFound
 
 from flaskdocs import API, Route
-from flaskdocs.schema import JsonSchema, Optional, Literal
+from flaskdocs.schema import JsonSchema, QueryParametersSchema, Optional, Literal, Use
 
 app = Flask(__name__)
 
@@ -16,19 +16,23 @@ api = API(
 blueprint = Blueprint('example', __name__)
 
 @api.route(
-    name="moo",
-    path="/moo",
-    methods=["POST"],
-    body_schema=JsonSchema({
-        Literal("animal", description="An animal, for some reason"): str,
+    name="add",
+    path="/add",
+    methods=["GET"],
+    query_parameter_schema=QueryParametersSchema({
+        # use "Use" here to tell the parser try calling float, rather
+        # than doing a type check, because queryParameters always come
+        # in as strings
+        Literal("x", description="The first number to add"): Use(float),
+        Literal("y", description="The second number to add"): Use(float),
     }),
     response_schema={200: JsonSchema({
-        Literal("moo", description="The animal which was passed in"): str
+        Literal("sum", description="The sum x + y"): float
     })},
     blueprint=blueprint,
 )
-def moo(animal="cow"):
-    return jsonify({"moo": animal})
+def add(x: float, y: float):
+    return jsonify({"sum": x + y})
 
 @api.route(
     name="hello",

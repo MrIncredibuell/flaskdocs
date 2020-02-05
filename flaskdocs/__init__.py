@@ -153,7 +153,7 @@ class Route:
             if self.query_parameter_schema:
                 params.update(
                     self.query_parameter_schema.validate(
-                        request.args
+                        request.args.to_dict()
                 ))
         except SchemaError as err:
             response = jsonify({"error": str(err)})
@@ -207,10 +207,16 @@ class Route:
         return output
 
     def to_openapi(self):
+        self.query_parameter_schema.to_openapi() if self.query_parameter_schema else None
+
         route_data = {
             method.lower(): {
                 "operationId": f"{method}-{self.name}",
                 "description": self.description,
+                "parameters": (
+                    self.query_parameter_schema.to_openapi()
+                    if self.query_parameter_schema else []
+                ),
                 "requestBody": {
                     "content": self.body_schema.to_openapi()
                 } if self.body_schema else None,

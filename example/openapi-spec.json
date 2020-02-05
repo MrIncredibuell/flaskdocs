@@ -6,10 +6,57 @@
  },
  "openapi": "3.0.0.",
  "paths": {
+  "/add": {
+   "get": {
+    "description": null,
+    "operationId": "GET-add",
+    "parameters": [
+     {
+      "in": "query",
+      "name": "x",
+      "required": true,
+      "schema": {
+       "type": "number"
+      }
+     },
+     {
+      "in": "query",
+      "name": "y",
+      "required": true,
+      "schema": {
+       "type": "number"
+      }
+     }
+    ],
+    "requestBody": null,
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "additionalProperties": false,
+         "properties": {
+          "sum": {
+           "description": "The sum x + y",
+           "type": "number"
+          }
+         },
+         "required": [
+          "sum"
+         ],
+         "type": "object"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
   "/hello": {
    "post": {
     "description": null,
     "operationId": "POST-hello",
+    "parameters": [],
     "requestBody": {
      "content": {
       "application/json": {
@@ -42,52 +89,6 @@
           }
          },
          "required": [],
-         "type": "object"
-        }
-       }
-      }
-     }
-    }
-   }
-  },
-  "/moo": {
-   "post": {
-    "description": null,
-    "operationId": "POST-moo",
-    "requestBody": {
-     "content": {
-      "application/json": {
-       "schema": {
-        "additionalProperties": false,
-        "properties": {
-         "animal": {
-          "description": "An animal, for some reason",
-          "type": "string"
-         }
-        },
-        "required": [
-         "animal"
-        ],
-        "type": "object"
-       }
-      }
-     }
-    },
-    "responses": {
-     "200": {
-      "content": {
-       "application/json": {
-        "schema": {
-         "additionalProperties": false,
-         "properties": {
-          "moo": {
-           "description": "The animal which was passed in",
-           "type": "string"
-          }
-         },
-         "required": [
-          "moo"
-         ],
          "type": "object"
         }
        }
