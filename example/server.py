@@ -2,7 +2,14 @@ from flask import Blueprint, render_template, abort, Flask, jsonify, request
 from jinja2 import TemplateNotFound
 
 from flaskdocs import API, Route
-from flaskdocs.schema import JsonSchema, QueryParametersSchema, Optional, Literal, Use
+from flaskdocs.schema import (
+    JsonSchema,
+    QueryParameterSchema,
+    UrlParameterSchema,
+    Optional,
+    Literal,
+    Use,
+)
 
 app = Flask(__name__)
 
@@ -20,7 +27,7 @@ blueprint = Blueprint('example', __name__)
     path="/add",
     methods=["GET"],
     description="Add two numbers together and return the sum",
-    query_parameter_schema=QueryParametersSchema({
+    query_parameter_schema=QueryParameterSchema({
         # use "Use" here to tell the parser try calling float, rather
         # than doing a type check, because queryParameters always come
         # in as strings
@@ -41,19 +48,40 @@ def add(x: float, y: float):
     methods=["POST"],
     description="Say hello to the given name",
     body_schema=JsonSchema({
-        Literal("name", description="The name of the person to greet"): str
+        Optional(
+            "name",
+            description="The name of the person to greet",
+            default="sir"): str
     }),
     response_schema={200: JsonSchema({
-        Optional(
+        Literal(
             "greeting",
             description="A personalized greeting for the person",
-            default="sir",
         ): str,
     })},
     blueprint=blueprint,
 )
 def hello(name="sir"):
     return jsonify({"greeting": f"hello {name}"})
+
+@api.route(
+    name="Echo",
+    path="/echo/<value>",
+    methods=["GET"],
+    description="Echo back the url parameter",
+    url_parameter_schema=UrlParameterSchema({
+        Literal("value", description="The value to echo"): str
+    }),
+    response_schema={200: JsonSchema({
+        Literal(
+            "value",
+            description="A same value given",
+        ): str,
+    })},
+    blueprint=blueprint,
+)
+def echo(value):
+    return jsonify({"value": value})
 
 app.register_blueprint(blueprint)
 

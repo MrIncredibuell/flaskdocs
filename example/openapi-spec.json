@@ -12,6 +12,7 @@
     "operationId": "Add Numbers",
     "parameters": [
      {
+      "description": "The first number to add",
       "in": "query",
       "name": "x",
       "required": true,
@@ -20,6 +21,7 @@
       }
      },
      {
+      "description": "The second number to add",
       "in": "query",
       "name": "y",
       "required": true,
@@ -52,6 +54,45 @@
     }
    }
   },
+  "/echo/<value>": {
+   "get": {
+    "description": "Echo back the url parameter",
+    "operationId": "Echo",
+    "parameters": [
+     {
+      "description": "The value to echo",
+      "in": "path",
+      "name": "value",
+      "required": true,
+      "schema": {
+       "type": "string"
+      }
+     }
+    ],
+    "requestBody": null,
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "additionalProperties": false,
+         "properties": {
+          "value": {
+           "description": "A same value given",
+           "type": "string"
+          }
+         },
+         "required": [
+          "value"
+         ],
+         "type": "object"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
   "/hello": {
    "post": {
     "description": "Say hello to the given name",
@@ -64,13 +105,11 @@
         "additionalProperties": false,
         "properties": {
          "name": {
-          "description": "The name of the person to greet",
+          "default": "sir",
           "type": "string"
          }
         },
-        "required": [
-         "name"
-        ],
+        "required": [],
         "type": "object"
        }
       }
@@ -84,11 +123,13 @@
          "additionalProperties": false,
          "properties": {
           "greeting": {
-           "default": "sir",
+           "description": "A personalized greeting for the person",
            "type": "string"
           }
          },
-         "required": [],
+         "required": [
+          "greeting"
+         ],
          "type": "object"
         }
        }

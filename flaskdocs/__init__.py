@@ -1,6 +1,12 @@
 from os import makedirs, path
 from typing import Dict, List, Callable
-from .schema import Schema, SchemaError, to_typescript
+from .schema import (
+    Schema,
+    QueryParameterSchema,
+    UrlParameterSchema,
+    SchemaError,
+    to_typescript,
+)
 from flask import Flask, Blueprint, request, jsonify
 import warnings
 import json
@@ -25,8 +31,9 @@ class API:
             path,
             name=None,
             methods=None,
-            description: str=None,
-            query_parameter_schema: Schema=None,
+            description: str = None,
+            url_parameter_schema: UrlParameterSchema=None,
+            query_parameter_schema: QueryParameterSchema=None,
             body_schema: Schema=None,
             response_schema: Schema = None,
             blueprint=None,
@@ -37,7 +44,8 @@ class API:
             name=name,
             path=path,
             description=description,
-            methods=methods[:], # make a copy because we might update methods
+            methods=methods[:],  # make a copy because we might update methods
+            url_parameter_schema=url_parameter_schema,
             query_parameter_schema=query_parameter_schema,
             body_schema=body_schema,
             response_schema=response_schema,
@@ -54,7 +62,7 @@ class API:
         app.add_url_rule(
             path,
             name,
-            view_func=route.handler,
+            view_func=route.handle,
             methods=methods,
         )
 
@@ -66,7 +74,8 @@ class API:
         name=None,
         methods=None,
         description=None,
-        query_parameter_schema: Schema=None,
+        url_parameter_schema: UrlParameterSchema=None,
+        query_parameter_schema: QueryParameterSchema=None,
         body_schema: Schema=None,
         response_schema: Dict[int, Schema] = None,
         blueprint: Blueprint = None,
@@ -78,6 +87,7 @@ class API:
                 path=path,
                 methods=methods,
                 description=description,
+                url_parameter_schema=url_parameter_schema,
                 query_parameter_schema=query_parameter_schema,
                 body_schema=body_schema,
                 response_schema=response_schema,
@@ -129,7 +139,8 @@ class Route:
         func: Callable,
         response_schema: Schema,
         description: str = None,
-        query_parameter_schema: Schema=None,
+        url_parameter_schema: UrlParameterSchema=None,
+        query_parameter_schema: QueryParameterSchema=None,
         body_schema: Schema=None,
     ):
         self.name = name
@@ -137,11 +148,12 @@ class Route:
         self.methods = methods
         self.func = func
         self.description = description
+        self.url_parameter_schema = url_parameter_schema
         self.query_parameter_schema = query_parameter_schema
         self.body_schema = body_schema
         self.response_schema = response_schema
 
-    def handler(self):
+    def handle(self, **kwargs):
         if request.accept_mimetypes.best_match([
             "application/json",
             "application/schema+json",
@@ -152,6 +164,17 @@ class Route:
             return jsonify(self.to_openapi())
 
         params = {}
+
+        try:
+            if self.url_parameter_schema:
+                params.update(
+                    self.url_parameter_schema.validate(
+                        kwargs
+                ))
+        except SchemaError as err:
+            response = jsonify({"error": str(err)})
+            response.status_code = 422
+            return response
 
         try:
             if self.query_parameter_schema:
@@ -218,8 +241,10 @@ class Route:
                 "operationId": f"{self.name}",
                 "description": self.description,
                 "parameters": (
-                    self.query_parameter_schema.to_openapi()
-                    if self.query_parameter_schema else []
+                    (self.query_parameter_schema.to_openapi()
+                    if self.query_parameter_schema else []) +
+                    (self.url_parameter_schema.to_openapi()
+                    if self.url_parameter_schema else [])
                 ),
                 "requestBody": {
                     "content": self.body_schema.to_openapi()

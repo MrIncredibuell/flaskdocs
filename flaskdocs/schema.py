@@ -61,20 +61,43 @@ def _get_type_name(obj):
     return "string"
 
 
-class QueryParametersSchema(Schema):
+class QueryParameterSchema(Schema):
     def to_openapi(self):
         params = []
         for name, value in self._schema.items():
+            try:
+                description = name.description
+            except:
+                description = ""
             params.append({
                 "name": str(name),
                 "in": "query",
                 "required": not isinstance(name, Optional),
                 "schema": {
                     "type": _get_type_name(value)
-                }
+                },
+                "description": description,
             })
         return params
 
+class UrlParameterSchema(QueryParameterSchema):
+    def to_openapi(self):
+        params = []
+        for name, value in self._schema.items():
+            try:
+                description = name.description
+            except:
+                description = ""
+            params.append({
+                "name": str(name),
+                "in": "path",
+                "required": not isinstance(name, Optional),
+                "schema": {
+                    "type": _get_type_name(value)
+                },
+                "description": description,
+            })
+        return params
     
 
 
