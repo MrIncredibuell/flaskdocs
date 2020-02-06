@@ -8,8 +8,8 @@
  "paths": {
   "/add": {
    "get": {
-    "description": null,
-    "operationId": "GET-add",
+    "description": "Add two numbers together and return the sum",
+    "operationId": "Add Numbers",
     "parameters": [
      {
       "in": "query",
@@ -54,8 +54,8 @@
   },
   "/hello": {
    "post": {
-    "description": null,
-    "operationId": "POST-hello",
+    "description": "Say hello to the given name",
+    "operationId": "Say Hello",
     "parameters": [],
     "requestBody": {
      "content": {

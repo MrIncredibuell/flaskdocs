@@ -16,9 +16,10 @@ api = API(
 blueprint = Blueprint('example', __name__)
 
 @api.route(
-    name="add",
+    name="Add Numbers",
     path="/add",
     methods=["GET"],
+    description="Add two numbers together and return the sum",
     query_parameter_schema=QueryParametersSchema({
         # use "Use" here to tell the parser try calling float, rather
         # than doing a type check, because queryParameters always come
@@ -35,9 +36,10 @@ def add(x: float, y: float):
     return jsonify({"sum": x + y})
 
 @api.route(
-    name="hello",
+    name="Say Hello",
     path="/hello",
     methods=["POST"],
+    description="Say hello to the given name",
     body_schema=JsonSchema({
         Literal("name", description="The name of the person to greet"): str
     }),

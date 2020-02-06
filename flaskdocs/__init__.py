@@ -25,6 +25,7 @@ class API:
             path,
             name=None,
             methods=None,
+            description: str=None,
             query_parameter_schema: Schema=None,
             body_schema: Schema=None,
             response_schema: Schema = None,
@@ -35,6 +36,7 @@ class API:
             func=func,
             name=name,
             path=path,
+            description=description,
             methods=methods[:], # make a copy because we might update methods
             query_parameter_schema=query_parameter_schema,
             body_schema=body_schema,
@@ -63,6 +65,7 @@ class API:
         path,
         name=None,
         methods=None,
+        description=None,
         query_parameter_schema: Schema=None,
         body_schema: Schema=None,
         response_schema: Dict[int, Schema] = None,
@@ -74,6 +77,7 @@ class API:
                 name=name,
                 path=path,
                 methods=methods,
+                description=description,
                 query_parameter_schema=query_parameter_schema,
                 body_schema=body_schema,
                 response_schema=response_schema,
@@ -211,7 +215,7 @@ class Route:
 
         route_data = {
             method.lower(): {
-                "operationId": f"{method}-{self.name}",
+                "operationId": f"{self.name}",
                 "description": self.description,
                 "parameters": (
                     self.query_parameter_schema.to_openapi()
