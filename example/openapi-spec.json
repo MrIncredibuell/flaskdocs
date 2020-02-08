@@ -54,7 +54,7 @@
     }
    }
   },
-  "/echo/<value>": {
+  "/echo/{value}": {
    "get": {
     "description": "Echo back the url parameter",
     "operationId": "Echo",

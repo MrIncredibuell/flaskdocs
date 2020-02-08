@@ -122,7 +122,8 @@ class API:
         }
 
         for name, route in self.routes.items():
-            out["paths"][route.path] = route.to_openapi()
+            route_path = route.path.replace("<", "{").replace(">", "}")
+            out["paths"][route_path] = route.to_openapi()
 
         f = open(path, "w+")
         f.write(json.dumps(out, indent=indent, sort_keys=True,))
