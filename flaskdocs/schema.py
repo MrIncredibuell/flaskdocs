@@ -124,7 +124,7 @@ def _typescript_predicate(value, indent=0):
     # return a list of types
     if type(value) in (And, Or):
         x = list(chain(
-            *(_typescript_predicate(v, indent=indent) for v in value._args[0])
+            *(_typescript_predicate(v, indent=indent) for v in value._args)
         ))
         return x
 

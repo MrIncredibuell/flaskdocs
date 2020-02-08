@@ -9,6 +9,8 @@ from flaskdocs.schema import (
     Optional,
     Literal,
     Use,
+    And,
+    SchemaError,
 )
 
 app = Flask(__name__)
@@ -21,6 +23,7 @@ api = API(
 )
 
 blueprint = Blueprint('example', __name__)
+
 
 @api.route(
     name="Add Numbers",
@@ -41,6 +44,7 @@ blueprint = Blueprint('example', __name__)
 )
 def add(x: float, y: float):
     return jsonify({"sum": x + y})
+
 
 @api.route(
     name="Say Hello",
@@ -64,6 +68,7 @@ def add(x: float, y: float):
 def hello(name="sir"):
     return jsonify({"greeting": f"hello {name}"})
 
+
 @api.route(
     name="Echo",
     path="/echo/<value>",
@@ -82,6 +87,69 @@ def hello(name="sir"):
 )
 def echo(value):
     return jsonify({"value": value})
+
+
+# Helper functions for more complex schema validation
+def min_len(length):
+    """
+    Return function to check if the length is more than
+    a given length
+    """
+    def f(value):
+        if len(value) < length:
+            raise SchemaError(f"Length of '{value}' is less than {length}")
+        return True
+    return f
+
+def is_email(value):
+    """
+    Simple validation to check if an string contains an '@'
+    and has both a user and hostname component
+    """
+    if value.count('@') != 1:
+        raise SchemaError(f"'{value}' must contain exactly one '@'")
+
+    # @ should not be the first or last character
+    index = value.index('@')
+    if index == 0:
+        raise SchemaError(f"'{value}' must contain a user component")
+    if index == len(value) - 1:
+        raise SchemaError(f"'{value}' must contain a hostname component")
+    return True
+
+USER_SCHEMA = {
+    Literal(
+        "name",
+        description="The user's name",
+    ): And(
+        str,
+        min_len(1),
+    ),
+    Literal(
+        "email",
+        description="The user's email address",
+    ): And(
+        str,
+        min_len(1),
+        is_email,
+    ),
+}
+
+@api.route(
+    name="Create User",
+    path="/users",
+    methods=["PUT"],
+    description="Create the given user",
+    body_schema=JsonSchema({
+        Literal("user", description="The user to create"): USER_SCHEMA,
+    }),
+    response_schema={200: JsonSchema({
+        Literal("user", description="The created user"): USER_SCHEMA,
+    })},
+    blueprint=blueprint,
+)
+def create_user(user):
+    return jsonify({"user": user})
 
 app.register_blueprint(blueprint)
 

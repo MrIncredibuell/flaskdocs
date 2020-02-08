@@ -137,6 +137,83 @@
      }
     }
    }
+  },
+  "/users": {
+   "put": {
+    "description": "Create the given user",
+    "operationId": "Create User",
+    "parameters": [],
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "additionalProperties": false,
+        "properties": {
+         "user": {
+          "additionalProperties": false,
+          "description": "The user to create",
+          "properties": {
+           "email": {
+            "description": "The user's email address",
+            "type": "string"
+           },
+           "name": {
+            "description": "The user's name",
+            "type": "string"
+           }
+          },
+          "required": [
+           "name",
+           "email"
+          ],
+          "type": "object"
+         }
+        },
+        "required": [
+         "user"
+        ],
+        "type": "object"
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "additionalProperties": false,
+         "properties": {
+          "user": {
+           "additionalProperties": false,
+           "description": "The created user",
+           "properties": {
+            "email": {
+             "description": "The user's email address",
+             "type": "string"
+            },
+            "name": {
+             "description": "The user's name",
+             "type": "string"
+            }
+           },
+           "required": [
+            "name",
+            "email"
+           ],
+           "type": "object"
+          }
+         },
+         "required": [
+          "user"
+         ],
+         "type": "object"
+        }
+       }
+      }
+     }
+    }
+   }
   }
  }
 }
