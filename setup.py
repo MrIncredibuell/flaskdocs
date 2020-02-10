@@ -21,6 +21,7 @@ setuptools.setup(
         "Development Status :: 3 - Alpha",
     ],
     install_requires=[
-        # "schema>=0.7.1",
+        "Flask">=1.1.1
+        "schema">=0.7.1
     ],
 )
