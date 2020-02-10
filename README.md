@@ -43,3 +43,5 @@ Declare a flask app and pass it to a flaskdocs API as follows:
         return jsonify({"sum": x + y})
 
     api.output_openapi("example/openapi-spec.json")
+
+To run a more complete example (found in the `example` folder) run `FLASK_APP=example/server.py python -m flask run` from this directory.
